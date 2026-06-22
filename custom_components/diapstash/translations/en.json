@@ -1,0 +1,115 @@
+{
+  "title": "DiapStash",
+  "config": {
+    "step": {
+      "pick_implementation": {
+        "title": "Choose authentication method",
+        "description": "Choose the DiapStash API credentials for this account. Create separate API credentials for each DiapStash account."
+      },
+      "auth": {
+        "title": "Connect DiapStash",
+        "description": "Sign in to your DiapStash account and approve access."
+      },
+      "user": {
+        "title": "Enter DiapStash API credentials",
+        "description": "Create an API client in the DiapStash account you want to add and enter its credentials here. Each DiapStash account should use its own API client credentials.",
+        "data": {
+          "name": "Name",
+          "client_id": "OAuth Client ID",
+          "client_secret": "OAuth Client Secret"
+        }
+      }
+    },
+    "abort": {
+      "credentials_already_configured": "These DiapStash API credentials are already used by another entry. Create a separate API client for each DiapStash account.",
+      "already_configured": "DiapStash is already configured.",
+      "missing_configuration": "No OAuth application credentials are configured.",
+      "missing_credentials": "Missing DiapStash application credentials.",
+      "oauth_error": "OAuth returned an invalid token response.",
+      "oauth_failed": "OAuth authentication failed.",
+      "oauth_timeout": "OAuth authentication timed out.",
+      "oauth_unauthorized": "OAuth authentication was rejected or expired.",
+      "user_rejected_authorize": "Authorization was rejected: {error}"
+    }
+  },
+  "application_credentials": {
+    "description": "Create an API client in DiapStash Account and enter the Client ID and Client Secret here.\n\nRedirect URL: `{redirect_url}`\n\nRecommended scopes: `{scopes}`\n\nMore info: {more_info_url}"
+  },
+  "entity": {
+    "sensor": {
+      "current_diaper": {
+        "name": "Current diaper"
+      },
+      "wearing_duration": {
+        "name": "Wearing duration"
+      },
+      "wearing_duration_text": {
+        "name": "Wearing duration text"
+      },
+      "stock_overview": {
+        "name": "Stock overview"
+      },
+      "stock_total": {
+        "name": "Stock total"
+      },
+      "stock_entries": {
+        "name": "Stock entries"
+      },
+      "stock_to_wash": {
+        "name": "Reusable diapers to wash"
+      },
+      "stock_brands": {
+        "name": "Stock brands"
+      },
+      "stock_types": {
+        "name": "Stock types"
+      },
+      "stock_locations": {
+        "name": "Stock locations"
+      },
+      "month_changes": {
+        "name": "Changes this month"
+      },
+      "year_changes": {
+        "name": "Changes this year"
+      },
+      "total_changes": {
+        "name": "Total changes"
+      },
+      "current_streak": {
+        "name": "Current streak"
+      },
+      "stock_brand_detail": {
+        "name": "Stock brand {brand}"
+      },
+      "stock_type_detail": {
+        "name": "Stock {label}"
+      }
+    },
+    "binary_sensor": {
+      "wearing": {
+        "name": "Wearing"
+      },
+      "low_stock_type": {
+        "name": "Low stock {label}"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "DiapStash options",
+        "description": "Adjust polling and optional sensor groups.",
+        "data": {
+          "scan_interval": "Polling interval",
+          "enable_stock": "Enable stock sensors",
+          "enable_stats": "Enable statistics",
+          "enable_dynamic_stock_entities": "Enable dynamic stock entities",
+          "enable_low_stock_binary_sensors": "Enable low-stock binary sensors",
+          "low_stock_threshold": "Low-stock threshold",
+          "live_duration_interval": "Live duration update interval"
+        }
+      }
+    }
+  }
+}

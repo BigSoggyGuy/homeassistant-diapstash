@@ -1,0 +1,115 @@
+{
+  "title": "DiapStash",
+  "config": {
+    "step": {
+      "pick_implementation": {
+        "title": "Choisir la méthode d’authentification",
+        "description": "Choisissez les identifiants API DiapStash pour ce compte. Créez des identifiants API séparés pour chaque compte DiapStash."
+      },
+      "auth": {
+        "title": "Connecter DiapStash",
+        "description": "Connectez-vous à votre compte DiapStash et autorisez l’accès."
+      },
+      "user": {
+        "title": "Saisir les identifiants API DiapStash",
+        "description": "Créez un client API dans le compte DiapStash que vous souhaitez ajouter et saisissez ses identifiants ici. Chaque compte DiapStash devrait utiliser ses propres identifiants API.",
+        "data": {
+          "name": "Nom",
+          "client_id": "ID client OAuth",
+          "client_secret": "Secret client OAuth"
+        }
+      }
+    },
+    "abort": {
+      "credentials_already_configured": "Ces identifiants API DiapStash sont déjà utilisés par une autre entrée. Créez un client API séparé pour chaque compte DiapStash.",
+      "already_configured": "DiapStash est déjà configuré.",
+      "missing_configuration": "Aucun identifiant OAuth d’application n’est configuré.",
+      "missing_credentials": "Identifiants d’application DiapStash manquants.",
+      "oauth_error": "OAuth a renvoyé une réponse de jeton invalide.",
+      "oauth_failed": "Échec de l’authentification OAuth.",
+      "oauth_timeout": "L’authentification OAuth a expiré.",
+      "oauth_unauthorized": "L’authentification OAuth a été refusée ou a expiré.",
+      "user_rejected_authorize": "Autorisation refusée : {error}"
+    }
+  },
+  "application_credentials": {
+    "description": "Créez un client API dans le compte DiapStash et saisissez ici le Client ID et le Client Secret.\n\nURL de redirection : `{redirect_url}`\n\nScopes recommandés : `{scopes}`\n\nPlus d’infos : {more_info_url}"
+  },
+  "entity": {
+    "sensor": {
+      "current_diaper": {
+        "name": "Couche actuelle"
+      },
+      "wearing_duration": {
+        "name": "Durée portée"
+      },
+      "wearing_duration_text": {
+        "name": "Durée portée texte"
+      },
+      "stock_overview": {
+        "name": "Aperçu du stock"
+      },
+      "stock_total": {
+        "name": "Stock total"
+      },
+      "stock_entries": {
+        "name": "Entrées de stock"
+      },
+      "stock_to_wash": {
+        "name": "Couches lavables à laver"
+      },
+      "stock_brands": {
+        "name": "Marques en stock"
+      },
+      "stock_types": {
+        "name": "Types en stock"
+      },
+      "stock_locations": {
+        "name": "Emplacements de stock"
+      },
+      "month_changes": {
+        "name": "Changes ce mois-ci"
+      },
+      "year_changes": {
+        "name": "Changes cette année"
+      },
+      "total_changes": {
+        "name": "Changes au total"
+      },
+      "current_streak": {
+        "name": "Série actuelle"
+      },
+      "stock_brand_detail": {
+        "name": "Stock marque {brand}"
+      },
+      "stock_type_detail": {
+        "name": "Stock {label}"
+      }
+    },
+    "binary_sensor": {
+      "wearing": {
+        "name": "Portée"
+      },
+      "low_stock_type": {
+        "name": "Stock faible {label}"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options DiapStash",
+        "description": "Ajustez la fréquence de polling et les groupes de capteurs optionnels.",
+        "data": {
+          "scan_interval": "Intervalle de polling",
+          "enable_stock": "Activer les capteurs de stock",
+          "enable_stats": "Activer les statistiques",
+          "enable_dynamic_stock_entities": "Activer les entités de stock dynamiques",
+          "enable_low_stock_binary_sensors": "Activer les capteurs binaires de stock faible",
+          "low_stock_threshold": "Seuil de stock faible",
+          "live_duration_interval": "Intervalle de mise à jour de la durée portée"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "domain": "diapstash",
+  "name": "DiapStash",
+  "after_dependencies": [
+    "http"
+  ],
+  "codeowners": [
+    "@BigSoggyGuy"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "application_credentials"
+  ],
+  "documentation": "https://github.com/BigSoggyGuy/homeassistant-diapstash",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/BigSoggyGuy/homeassistant-diapstash/issues",
+  "requirements": [],
+  "version": "1.0.1"
+}

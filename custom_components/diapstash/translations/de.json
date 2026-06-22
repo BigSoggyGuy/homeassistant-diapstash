@@ -1,0 +1,114 @@
+{
+  "title": "DiapStash",
+  "config": {
+    "step": {
+      "pick_implementation": {
+        "title": "Authentifizierung auswählen"
+      },
+      "auth": {
+        "title": "DiapStash verbinden",
+        "description": "Melde dich bei deinem DiapStash-Konto an und bestätige den Zugriff."
+      },
+      "user": {
+        "title": "DiapStash API-Zugangsdaten eingeben",
+        "description": "Erstelle im DiapStash-Account, den du hinzufügen möchtest, einen API-Client und trage dessen Zugangsdaten hier ein. Jeder DiapStash-Account sollte eigene API-Zugangsdaten verwenden.",
+        "data": {
+          "name": "Name",
+          "client_id": "OAuth-Client-ID",
+          "client_secret": "OAuth-Client-Secret"
+        }
+      }
+    },
+    "abort": {
+      "credentials_already_configured": "Diese DiapStash API-Zugangsdaten werden bereits von einem anderen Eintrag verwendet. Erstelle für jeden DiapStash-Account einen eigenen API-Client.",
+      "already_configured": "DiapStash ist bereits eingerichtet.",
+      "missing_configuration": "Es sind keine OAuth-Anwendungszugangsdaten eingerichtet.",
+      "missing_credentials": "DiapStash-Anwendungszugangsdaten fehlen.",
+      "oauth_error": "OAuth hat eine ungültige Token-Antwort geliefert.",
+      "oauth_failed": "OAuth-Anmeldung fehlgeschlagen.",
+      "oauth_timeout": "OAuth-Anmeldung hat zu lange gedauert.",
+      "oauth_unauthorized": "OAuth-Anmeldung wurde abgelehnt oder ist abgelaufen.",
+      "user_rejected_authorize": "Autorisierung wurde abgelehnt: {error}"
+    }
+  },
+  "application_credentials": {
+    "description": "Erstelle im DiapStash Account einen API-Client und trage hier Client ID und Client Secret ein.\n\nRedirect URL: `{redirect_url}`\n\nEmpfohlene Scopes: `{scopes}`\n\nMehr Infos: {more_info_url}"
+  },
+  "entity": {
+    "sensor": {
+      "current_diaper": {
+        "name": "Aktuelle Windel"
+      },
+      "wearing_duration": {
+        "name": "Tragedauer"
+      },
+      "wearing_duration_text": {
+        "name": "Tragedauer Text"
+      },
+      "stock_overview": {
+        "name": "Lagerübersicht"
+      },
+      "stock_total": {
+        "name": "Lager gesamt"
+      },
+      "stock_entries": {
+        "name": "Lagereinträge"
+      },
+      "stock_to_wash": {
+        "name": "Waschen nötig"
+      },
+      "stock_brands": {
+        "name": "Lagermarken"
+      },
+      "stock_types": {
+        "name": "Lagertypen"
+      },
+      "stock_locations": {
+        "name": "Lagerorte"
+      },
+      "month_changes": {
+        "name": "Wechsel diesen Monat"
+      },
+      "year_changes": {
+        "name": "Wechsel dieses Jahr"
+      },
+      "total_changes": {
+        "name": "Wechsel gesamt"
+      },
+      "current_streak": {
+        "name": "Aktuelle Serie"
+      },
+      "stock_brand_detail": {
+        "name": "Lager Marke {brand}"
+      },
+      "stock_type_detail": {
+        "name": "Lager {label}"
+      }
+    },
+    "binary_sensor": {
+      "wearing": {
+        "name": "Wird getragen"
+      },
+      "low_stock_type": {
+        "name": "Niedriger Bestand {label}"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "DiapStash Optionen",
+        "description": "Passe Polling und optionale Sensorgruppen an.",
+        "data": {
+          "scan_interval": "Abfrageintervall",
+          "enable_stock": "Lagersensoren aktivieren",
+          "enable_stats": "Statistiken aktivieren",
+          "enable_dynamic_stock_entities": "Dynamische Lager-Entitäten aktivieren",
+          "enable_low_stock_binary_sensors": "Low-Stock Binary-Sensoren aktivieren",
+          "low_stock_threshold": "Low-Stock Schwelle",
+          "live_duration_interval": "Live-Tragedauer-Aktualisierungsintervall"
+        }
+      }
+    }
+  }
+}

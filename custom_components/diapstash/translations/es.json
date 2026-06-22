@@ -1,0 +1,115 @@
+{
+  "title": "DiapStash",
+  "config": {
+    "step": {
+      "pick_implementation": {
+        "title": "Elegir método de autenticación",
+        "description": "Elige las credenciales API de DiapStash para esta cuenta. Crea credenciales API separadas para cada cuenta de DiapStash."
+      },
+      "auth": {
+        "title": "Conectar DiapStash",
+        "description": "Inicia sesión en tu cuenta de DiapStash y aprueba el acceso."
+      },
+      "user": {
+        "title": "Introducir credenciales API de DiapStash",
+        "description": "Crea un cliente API en la cuenta de DiapStash que quieras añadir e introduce aquí sus credenciales. Cada cuenta de DiapStash debería usar sus propias credenciales API.",
+        "data": {
+          "name": "Nombre",
+          "client_id": "ID de cliente OAuth",
+          "client_secret": "Secreto de cliente OAuth"
+        }
+      }
+    },
+    "abort": {
+      "credentials_already_configured": "Estas credenciales API de DiapStash ya se usan en otra entrada. Crea un cliente API separado para cada cuenta de DiapStash.",
+      "already_configured": "DiapStash ya está configurado.",
+      "missing_configuration": "No hay credenciales OAuth de aplicación configuradas.",
+      "missing_credentials": "Faltan credenciales de aplicación de DiapStash.",
+      "oauth_error": "OAuth devolvió una respuesta de token no válida.",
+      "oauth_failed": "La autenticación OAuth falló.",
+      "oauth_timeout": "La autenticación OAuth agotó el tiempo de espera.",
+      "oauth_unauthorized": "La autenticación OAuth fue rechazada o expiró.",
+      "user_rejected_authorize": "Autorización rechazada: {error}"
+    }
+  },
+  "application_credentials": {
+    "description": "Crea un cliente API en la cuenta de DiapStash e introduce aquí el Client ID y el Client Secret.\n\nURL de redirección: `{redirect_url}`\n\nScopes recomendados: `{scopes}`\n\nMás información: {more_info_url}"
+  },
+  "entity": {
+    "sensor": {
+      "current_diaper": {
+        "name": "Pañal actual"
+      },
+      "wearing_duration": {
+        "name": "Tiempo de uso"
+      },
+      "wearing_duration_text": {
+        "name": "Texto de tiempo de uso"
+      },
+      "stock_overview": {
+        "name": "Resumen de stock"
+      },
+      "stock_total": {
+        "name": "Stock total"
+      },
+      "stock_entries": {
+        "name": "Entradas de stock"
+      },
+      "stock_to_wash": {
+        "name": "Reutilizables para lavar"
+      },
+      "stock_brands": {
+        "name": "Marcas en stock"
+      },
+      "stock_types": {
+        "name": "Tipos en stock"
+      },
+      "stock_locations": {
+        "name": "Ubicaciones de stock"
+      },
+      "month_changes": {
+        "name": "Cambios este mes"
+      },
+      "year_changes": {
+        "name": "Cambios este año"
+      },
+      "total_changes": {
+        "name": "Cambios totales"
+      },
+      "current_streak": {
+        "name": "Racha actual"
+      },
+      "stock_brand_detail": {
+        "name": "Stock marca {brand}"
+      },
+      "stock_type_detail": {
+        "name": "Stock {label}"
+      }
+    },
+    "binary_sensor": {
+      "wearing": {
+        "name": "En uso"
+      },
+      "low_stock_type": {
+        "name": "Stock bajo {label}"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de DiapStash",
+        "description": "Ajusta la frecuencia de consulta y los grupos de sensores opcionales.",
+        "data": {
+          "scan_interval": "Intervalo de consulta",
+          "enable_stock": "Activar sensores de stock",
+          "enable_stats": "Activar estadísticas",
+          "enable_dynamic_stock_entities": "Activar entidades dinámicas de stock",
+          "enable_low_stock_binary_sensors": "Activar sensores binarios de stock bajo",
+          "low_stock_threshold": "Umbral de stock bajo",
+          "live_duration_interval": "Intervalo de actualización de tiempo de uso"
+        }
+      }
+    }
+  }
+}
