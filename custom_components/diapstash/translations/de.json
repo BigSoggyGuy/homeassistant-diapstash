@@ -17,6 +17,10 @@
           "client_id": "OAuth-Client-ID",
           "client_secret": "OAuth-Client-Secret"
         }
+      },
+      "reauth_confirm": {
+        "title": "DiapStash erneut authentifizieren",
+        "description": "Der DiapStash-Authentifizierungstoken ist abgelaufen oder wurde widerrufen. Fahre fort, um dich erneut anzumelden und diesen Account wieder zu verbinden."
       }
     },
     "abort": {
@@ -28,7 +32,9 @@
       "oauth_failed": "OAuth-Anmeldung fehlgeschlagen.",
       "oauth_timeout": "OAuth-Anmeldung hat zu lange gedauert.",
       "oauth_unauthorized": "OAuth-Anmeldung wurde abgelehnt oder ist abgelaufen.",
-      "user_rejected_authorize": "Autorisierung wurde abgelehnt: {error}"
+      "user_rejected_authorize": "Autorisierung wurde abgelehnt: {error}",
+      "reauth_successful": "Die erneute Authentifizierung war erfolgreich.",
+      "wrong_account": "Du hast dich mit einem anderen DiapStash-Account angemeldet. Bitte melde dich mit demselben Account an, der ursprünglich eingerichtet wurde."
     }
   },
   "application_credentials": {

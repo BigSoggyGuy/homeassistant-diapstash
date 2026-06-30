@@ -18,6 +18,10 @@
           "client_id": "ID de cliente OAuth",
           "client_secret": "Secreto de cliente OAuth"
         }
+      },
+      "reauth_confirm": {
+        "title": "Volver a autenticar DiapStash",
+        "description": "El token de autenticación de DiapStash expiró o fue revocado. Continúa para iniciar sesión de nuevo y reconectar esta cuenta."
       }
     },
     "abort": {
@@ -29,7 +33,9 @@
       "oauth_failed": "La autenticación OAuth falló.",
       "oauth_timeout": "La autenticación OAuth agotó el tiempo de espera.",
       "oauth_unauthorized": "La autenticación OAuth fue rechazada o expiró.",
-      "user_rejected_authorize": "Autorización rechazada: {error}"
+      "user_rejected_authorize": "Autorización rechazada: {error}",
+      "reauth_successful": "La reautenticación se completó correctamente.",
+      "wrong_account": "Has iniciado sesión con una cuenta de DiapStash diferente. Inicia sesión con la misma cuenta que se configuró originalmente."
     }
   },
   "application_credentials": {

@@ -4,17 +4,20 @@ from __future__ import annotations
 
 from hashlib import sha1
 import logging
+from collections.abc import Mapping
 from typing import Any
 
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.config_entries import SOURCE_REAUTH
 from homeassistant.core import callback
 from homeassistant.util import slugify
 from homeassistant.helpers import config_entry_oauth2_flow
 from homeassistant.helpers.config_entry_oauth2_flow import (
     ImplementationUnavailableError,
     async_get_implementations,
+    async_get_config_entry_implementation,
 )
 
 from .application_credentials import DiapStashOAuth2Implementation
@@ -107,6 +110,49 @@ class DiapStashConfigFlow(
         )
         return await self.async_step_auth()
 
+    async def async_step_reauth(
+        self, entry_data: Mapping[str, Any],
+    ) -> config_entries.ConfigFlowResult:
+        """Handle reauthentication when DiapStash tokens are invalid or expired."""
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(
+        self, user_input: dict[str, Any] | None = None,
+    ) -> config_entries.ConfigFlowResult:
+        """Ask the user to reauthenticate an existing DiapStash account."""
+        if user_input is None:
+            return self.async_show_form(
+                step_id="reauth_confirm",
+                data_schema=vol.Schema({}),
+            )
+
+        entry = self._get_reauth_entry()
+
+        if entry.data.get("client_id") and entry.data.get("client_secret"):
+            self._manual_credentials = {
+                "credential_name": str(entry.data.get("credential_name") or entry.title or "DiapStash"),
+                "client_id": str(entry.data["client_id"]),
+                "client_secret": str(entry.data["client_secret"]),
+            }
+            self.flow_impl = DiapStashOAuth2Implementation(
+                self.hass,
+                str(entry.data.get("auth_implementation") or f"{DOMAIN}_{entry.entry_id}"),
+                str(entry.data["client_id"]),
+                authorize_url=OAUTH2_AUTHORIZE,
+                token_url=OAUTH2_TOKEN,
+                client_secret=str(entry.data["client_secret"]),
+                code_verifier_length=128,
+            )
+            return await self.async_step_auth()
+
+        try:
+            self.flow_impl = await async_get_config_entry_implementation(self.hass, entry)
+        except ImplementationUnavailableError as err:
+            self.logger.error("OAuth2 implementation unavailable during reauth: %s", err)
+            return self.async_abort(reason="oauth_implementation_unavailable")
+
+        return await self.async_step_auth()
+
 
     async def async_step_pick_implementation(
         self,
@@ -153,6 +199,25 @@ class DiapStashConfigFlow(
             data = {**data, **self._manual_credentials}
 
         auth_implementation = data.get("auth_implementation")
+
+        if self.source == SOURCE_REAUTH:
+            reauth_entry = self._get_reauth_entry()
+            await self.async_set_unique_id(account_id)
+            self._abort_if_unique_id_mismatch(reason="wrong_account")
+
+            new_data = {**dict(reauth_entry.data), **dict(data)}
+            if self._manual_credentials:
+                new_data.update(self._manual_credentials)
+            new_data["account_id"] = account_id
+            new_data.setdefault(
+                DATA_USE_ACCOUNT_DEVICE_IDENTIFIER,
+                reauth_entry.data.get(DATA_USE_ACCOUNT_DEVICE_IDENTIFIER, True),
+            )
+
+            return self.async_update_reload_and_abort(
+                reauth_entry,
+                data_updates=new_data,
+            )
 
         # Be explicit here in addition to Home Assistant's unique_id check.
         # Existing entries created before v0.10 may have been migrated to the

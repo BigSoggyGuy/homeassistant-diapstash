@@ -77,12 +77,40 @@ class DiapStashOAuth2Implementation(LocalOAuth2ImplementationWithPkce):
                 except (ClientError, ValueError, AttributeError):
                     detail = error_body[:200] if error_body else "unknown error"
 
-                _LOGGER.debug(
+                _LOGGER.warning(
                     "DiapStash token request failed (%s): %s",
                     resp.status,
                     detail,
                 )
-                resp.raise_for_status()
+
+                if resp.status == HTTPStatus.TOO_MANY_REQUESTS or 500 <= resp.status <= 599:
+                    raise OAuth2TokenRequestTransientError(
+                        request_info=resp.request_info,
+                        history=resp.history,
+                        status=resp.status,
+                        message=detail,
+                        headers=resp.headers,
+                        domain=DOMAIN,
+                    )
+
+                if 400 <= resp.status <= 499:
+                    raise OAuth2TokenRequestReauthError(
+                        request_info=resp.request_info,
+                        history=resp.history,
+                        status=resp.status,
+                        message=detail,
+                        headers=resp.headers,
+                        domain=DOMAIN,
+                    )
+
+                raise OAuth2TokenRequestError(
+                    request_info=resp.request_info,
+                    history=resp.history,
+                    status=resp.status,
+                    message=detail,
+                    headers=resp.headers,
+                    domain=DOMAIN,
+                )
 
         except ClientResponseError as err:
             if err.status == HTTPStatus.TOO_MANY_REQUESTS or 500 <= err.status <= 599:
