@@ -44,6 +44,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: DiapStashConfigEntry) ->
 
     api = DiapStashApiClient(hass, oauth_session)
     coordinator = DiapStashCoordinator(hass, api, entry)
+    # Keep a copy of the options that were active at setup time. OAuth token
+    # refreshes update entry.data and also trigger ConfigEntry update listeners;
+    # we must not reload the whole integration for those token-only updates
+    # because that briefly makes all entities unavailable.
+    coordinator.last_options = dict(entry.options)
     await coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
@@ -81,7 +86,24 @@ async def _async_migrate_unique_id(hass: HomeAssistant, entry: DiapStashConfigEn
 
 
 async def _async_update_options(hass: HomeAssistant, entry: DiapStashConfigEntry) -> None:
-    """Reload entry when options change."""
+    """Reload entry only when user-facing options change.
+
+    Home Assistant also updates config entry data when OAuth tokens are
+    refreshed. Those token-only updates call this listener too. Reloading the
+    integration for every token refresh unloads all entities for a few seconds,
+    which creates noisy "unavailable" history entries. Therefore we compare
+    options and only reload when options actually changed.
+    """
+    coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    if coordinator is None:
+        return
+
+    current_options = dict(entry.options)
+    previous_options = getattr(coordinator, "last_options", None)
+    if previous_options == current_options:
+        return
+
+    coordinator.last_options = current_options
     await hass.config_entries.async_reload(entry.entry_id)
 
 

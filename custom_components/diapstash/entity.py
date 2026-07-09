@@ -26,3 +26,16 @@ class DiapStashEntity(CoordinatorEntity[DiapStashCoordinator]):
             manufacturer="DiapStash",
             name=coordinator.entry.title or NAME,
         )
+
+    @property
+    def available(self) -> bool:
+        """Return entity availability.
+
+        Keep the last known good DiapStash values available during temporary
+        update failures. Without this, every short API/network hiccup makes all
+        entities jump to unavailable and creates noisy history entries.
+
+        Initial setup still reports unavailable until the first successful
+        coordinator update has data.
+        """
+        return self.coordinator.last_update_success or self.coordinator.data is not None

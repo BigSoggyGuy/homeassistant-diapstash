@@ -1,5 +1,42 @@
 # Changelog
 
+## v1.1.4
+
+### Fixed
+
+- Add repository-level brand assets in the root `brand/` directory so HACS and Home Assistant update cards can display the DiapStash icon correctly.
+- Keep the existing integration-level brand assets under `custom_components/diapstash/brand/` for Home Assistant's local custom integration brand support.
+
+## v1.1.3
+
+### Documentation / setup
+
+- Add a pre-filled DiapStash API client creation link to the README.
+- Show the pre-filled API client creation link during Home Assistant setup.
+- Document the recommended API Server application type, redirect URL and required scopes more clearly.
+
+## v1.1.2
+
+### Added
+
+- Add support for additional current change items such as boosters.
+- The current diaper sensor can now expose:
+  - `current_items`
+  - `boosters`
+  - `boosters_count`
+  - `boosters_label`
+
+### Fixed
+
+- Avoid unnecessary integration reloads when OAuth token data changes.
+- This prevents entities from briefly becoming unavailable during token refreshes.
+- Keep entities available with their last known good values during temporary DiapStash API or network update failures.
+- Reduce noisy Home Assistant history entries where sensors briefly changed to unavailable and back on the next successful poll.
+
+### Notes
+
+- The integration still uses the primary diaper as the main state of the current diaper sensor. Additional items such as boosters are exposed as attributes.
+
 ## v1.0.2
 
 ### Fixes

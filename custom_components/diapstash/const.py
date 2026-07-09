@@ -11,6 +11,11 @@ OAUTH2_AUTHORIZE = "https://account.diapstash.com/oidc/auth"
 OAUTH2_TOKEN = "https://account.diapstash.com/oidc/token"
 OAUTH2_SCOPES = "cloud-sync.history cloud-sync.stock cloud-sync.types offline_access"
 
+OAUTH2_REDIRECT_URL = "https://my.home-assistant.io/redirect/oauth"
+DIAPSTASH_API_CLIENT_PREFILL_URL = (
+    "https://account.diapstash.com/account/api/create?clientName=Home+Assistant+DiapStash&mode=backend&redirectUri=https%3A%2F%2Fmy.home-assistant.io%2Fredirect%2Foauth&scope=cloud-sync.history&scope=cloud-sync.stock&scope=cloud-sync.types&scope=offline_access"
+)
+
 API_BASES = (
     "https://api.diapstash.com/api/v1",
     "https://api.diapstash.com/api",
@@ -28,7 +33,7 @@ BRAND_PATH = "/brand/brands/{brand_code}"
 CATALOG_TYPE_URL = "https://diapstash.com/catalog/types/{type_id}"
 
 UPDATE_INTERVAL_MINUTES = 15
-INTEGRATION_VERSION = "1.0.2"
+INTEGRATION_VERSION = "1.1.4"
 
 ATTR_BRAND = "brand"
 ATTR_CHANGE_ID = "change_id"

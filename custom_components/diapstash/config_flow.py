@@ -40,6 +40,9 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     DATA_USE_ACCOUNT_DEVICE_IDENTIFIER,
+    DIAPSTASH_API_CLIENT_PREFILL_URL,
+    OAUTH2_REDIRECT_URL,
+    OAUTH2_SCOPES,
     OAUTH2_AUTHORIZE,
     OAUTH2_TOKEN,
 )
@@ -87,6 +90,11 @@ class DiapStashConfigFlow(
                         vol.Required("client_secret"): str,
                     }
                 ),
+                description_placeholders={
+                    "api_client_url": DIAPSTASH_API_CLIENT_PREFILL_URL,
+                    "redirect_url": OAUTH2_REDIRECT_URL,
+                    "scopes": OAUTH2_SCOPES,
+                },
             )
 
         name = str(user_input["name"]).strip() or "DiapStash"

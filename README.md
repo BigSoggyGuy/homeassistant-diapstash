@@ -2,7 +2,7 @@
 
 Custom Home Assistant integration for DiapStash Cloud Sync.
 
-Current stable version: **1.0.2**
+Current stable version: **1.1.4**
 
 ## Features
 
@@ -12,6 +12,7 @@ Current stable version: **1.0.2**
 - Stable account identification through the `sub` claim from the DiapStash access token
 - Token refresh handling and Home Assistant reauthentication support
 - Current diaper sensor
+- Additional current change item attributes, including boosters
 - Wearing binary sensor
 - Wearing duration sensor
 - Local live wearing-duration updates without additional DiapStash API calls
@@ -30,21 +31,29 @@ Current stable version: **1.0.2**
 - Translations for English, German, French and Spanish
 - Local Home Assistant brand images
 
-## Required DiapStash API scopes
+## DiapStash API client
 
-Create an API client in DiapStash Account and enable these scopes:
+Each DiapStash account should use its own DiapStash API client credentials.
+
+You can open a pre-filled DiapStash API client creation form here:
+
+[Create pre-filled DiapStash API client](https://account.diapstash.com/account/api/create?clientName=Home+Assistant+DiapStash&mode=backend&redirectUri=https%3A%2F%2Fmy.home-assistant.io%2Fredirect%2Foauth&scope=cloud-sync.history&scope=cloud-sync.stock&scope=cloud-sync.types&scope=offline_access)
+
+The form is only pre-filled. You still have to review and submit it in your DiapStash Account.
+
+Recommended application type:
+
+```text
+API Server
+```
+
+Required scopes:
 
 ```text
 cloud-sync.history
 cloud-sync.stock
 cloud-sync.types
 offline_access
-```
-
-Recommended application type:
-
-```text
-API Server
 ```
 
 Redirect URL:
@@ -93,7 +102,7 @@ Restart Home Assistant.
 
 1. Go to **Settings → Devices & services → Add integration**.
 2. Search for **DiapStash**.
-3. Enter a name, OAuth Client ID and OAuth Client Secret from your DiapStash API client.
+3. Use the pre-filled API client creation link if needed, then enter a name, OAuth Client ID and OAuth Client Secret from your DiapStash API client.
 4. Log in to DiapStash and approve access.
 5. The integration creates entities automatically.
 
@@ -144,19 +153,57 @@ The current diaper sensor exposes attributes such as:
 
 ```yaml
 wearing: true
-brand: Molicare
-diaper_name: Slip Maxi
+brand: ABUniverse
+diaper_name: LittlePawz
 size: L
-start_time: "2026-06-22T08:15:00.000Z"
-duration_text: "1h 5m"
-duration_minutes: 65
-type_id: 98
-catalog_url: "https://diapstash.com/catalog/types/98"
+start_time: "2026-07-05T11:07:00.000Z"
+duration_text: "42m"
+duration_minutes: 42
+type_id: 27
+catalog_url: "https://diapstash.com/catalog/types/27"
 image_url: "https://..."
 entity_picture: "https://..."
 ```
 
 The duration attributes are refreshed locally on the configured live update interval. This does not trigger additional DiapStash API requests.
+
+### Additional current change items and boosters
+
+If the current change contains additional items such as boosters, the current diaper sensor can expose them as attributes:
+
+```yaml
+current_items:
+  - index: 0
+    role: diaper
+    label: ABUniverse LittlePawz Size L
+    type_id: 27
+    brand: ABUniverse
+    diaper_name: LittlePawz
+    size: L
+    image_url: "https://..."
+  - index: 1
+    role: booster
+    label: Tena Rectangular Pads
+    type_id: 123
+    brand: Tena
+    diaper_name: Rectangular Pads
+    size: Boost
+    image_url: "https://..."
+
+boosters:
+  - index: 1
+    role: booster
+    label: Tena Rectangular Pads
+    type_id: 123
+    brand: Tena
+    diaper_name: Rectangular Pads
+    size: Boost
+
+boosters_count: 1
+boosters_label: Tena Rectangular Pads
+```
+
+The main sensor state remains the primary diaper. Additional items are exposed as attributes for dashboards and automations.
 
 ## Stock implementation
 
@@ -200,6 +247,10 @@ The integration polls DiapStash every 15 minutes by default. One coordinator upd
 
 The wearing duration can be refreshed locally without extra API calls. The live duration update interval can be configured in the integration options.
 
+Temporary DiapStash API or network update failures keep the last known values available after the first successful data update. This avoids noisy short `unavailable` state changes in Home Assistant history.
+
+OAuth token refresh updates do not reload the whole integration, so entities should remain available during token refreshes.
+
 ## Reauthentication
 
 DiapStash refresh tokens rotate and may eventually expire or be rejected by the token endpoint.
@@ -213,14 +264,3 @@ During reauthentication, log in with the same DiapStash account. The integration
 DiapStash refresh tokens rotate. Do not use the same refresh token in multiple tools at the same time. Once this integration is configured, Home Assistant should be the only client using the token.
 
 The integration is read-only. Stock additions are handled through DiapStash deep links, not API write access.
-
-## Brand images
-
-Home Assistant can load local brand images from:
-
-```text
-custom_components/diapstash/brand/icon.png
-custom_components/diapstash/brand/logo.png
-```
-
-The included images are PNG assets provided by the project maintainer.

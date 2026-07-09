@@ -11,7 +11,7 @@
       },
       "user": {
         "title": "DiapStash API-Zugangsdaten eingeben",
-        "description": "Erstelle im DiapStash-Account, den du hinzufügen möchtest, einen API-Client und trage dessen Zugangsdaten hier ein. Jeder DiapStash-Account sollte eigene API-Zugangsdaten verwenden.",
+        "description": "Erstelle im DiapStash-Account, den du hinzufügen möchtest, einen API-Client und trage dessen Zugangsdaten hier ein. Jeder DiapStash-Account sollte eigene API-Zugangsdaten verwenden.\n\nNutze das vorausgefüllte Formular zum Erstellen des API-Clients: {api_client_url}\n\nRedirect URL: `{redirect_url}`\n\nBenötigte Scopes: `{scopes}`",
         "data": {
           "name": "Name",
           "client_id": "OAuth-Client-ID",
@@ -38,7 +38,7 @@
     }
   },
   "application_credentials": {
-    "description": "Erstelle im DiapStash Account einen API-Client und trage hier Client ID und Client Secret ein.\n\nRedirect URL: `{redirect_url}`\n\nEmpfohlene Scopes: `{scopes}`\n\nMehr Infos: {more_info_url}"
+    "description": "Erstelle im DiapStash Account einen API-Client und trage hier Client ID und Client Secret ein.\n\nVorausgefülltes Formular: {api_client_url}\n\nRedirect URL: `{redirect_url}`\n\nEmpfohlene Scopes: `{scopes}`\n\nMehr Infos: {more_info_url}"
   },
   "entity": {
     "sensor": {

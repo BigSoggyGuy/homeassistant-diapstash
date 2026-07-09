@@ -31,6 +31,7 @@ class DiapStashCoordinator(DataUpdateCoordinator[DiapStashCurrentDiaper]):
     def __init__(self, hass: HomeAssistant, api: DiapStashApiClient, entry: ConfigEntry) -> None:
         """Initialize coordinator."""
         self.entry = entry
+        self.last_options: dict[str, object] = dict(entry.options)
         super().__init__(
             hass,
             _LOGGER,

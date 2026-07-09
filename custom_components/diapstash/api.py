@@ -81,6 +81,10 @@ class DiapStashCurrentDiaper:
     type_id: int | str | None = None
     catalog_url: str | None = None
     image_url: str | None = None
+    current_items: list[dict[str, Any]] = field(default_factory=list)
+    boosters: list[dict[str, Any]] = field(default_factory=list)
+    boosters_count: int | None = None
+    boosters_label: str | None = None
     debug_count: int | None = None
     debug_total_count: int | None = None
     debug_url: str | None = None
@@ -401,27 +405,36 @@ class DiapStashApiClient:
         """Build current diaper object."""
         diapers = current.get("diapers") or []
         sorted_diapers = sorted(diapers, key=lambda item: item.get("order") or 0)
-        first_diaper = sorted_diapers[0] if sorted_diapers else {}
-        info = await self._resolve_diaper_info(first_diaper)
+        resolved_items: list[dict[str, Any]] = []
+        for index, diaper_item in enumerate(sorted_diapers):
+            item_info = await self._resolve_diaper_info(diaper_item)
+            resolved_items.append(_current_change_item_to_dict(diaper_item, item_info, index))
+
+        first_item = resolved_items[0] if resolved_items else {}
+        additional_items = resolved_items[1:]
         label_parts = []
-        if info["brand"]:
-            label_parts.append(str(info["brand"]))
-        if info["name"]:
-            label_parts.append(str(info["name"]))
-        if info["size"]:
-            label_parts.append(f"Size {info['size']}")
+        if first_item.get("brand"):
+            label_parts.append(str(first_item["brand"]))
+        if first_item.get("diaper_name"):
+            label_parts.append(str(first_item["diaper_name"]))
+        if first_item.get("size"):
+            label_parts.append(f"Size {first_item['size']}")
         return DiapStashCurrentDiaper(
             wearing=current.get("endTime") is None,
             label=" ".join(label_parts) or "Unknown diaper",
-            diaper_name=info["name"],
-            brand=info["brand"],
-            size=info["size"],
-            variant=info["variant"],
+            diaper_name=first_item.get("diaper_name"),
+            brand=first_item.get("brand"),
+            size=first_item.get("size"),
+            variant=first_item.get("variant"),
             start_time=current.get("startTime"),
             change_id=current.get("id"),
-            type_id=info["type_id"],
-            catalog_url=CATALOG_TYPE_URL.format(type_id=info["type_id"]) if info["type_id"] else None,
-            image_url=info["image_url"],
+            type_id=first_item.get("type_id"),
+            catalog_url=first_item.get("catalog_url"),
+            image_url=first_item.get("image_url"),
+            current_items=resolved_items,
+            boosters=additional_items,
+            boosters_count=len(additional_items),
+            boosters_label=", ".join(str(item.get("label")) for item in additional_items if item.get("label")) or None,
             debug_count=debug_count,
             debug_total_count=total_count,
             debug_url=debug_url,
@@ -593,6 +606,56 @@ class DiapStashApiClient:
             "image_url": str(image_url) if image_url else None,
         }
 
+
+
+def _current_change_item_to_dict(item: dict[str, Any], info: dict[str, Any], index: int) -> dict[str, Any]:
+    """Return a compact current-change diaper/booster item for attributes."""
+    label_parts: list[str] = []
+    if info.get("brand"):
+        label_parts.append(str(info["brand"]))
+    if info.get("name"):
+        label_parts.append(str(info["name"]))
+    if info.get("size"):
+        label_parts.append(f"Size {info['size']}")
+    label = " ".join(label_parts) or (f"type_id {info['type_id']}" if info.get("type_id") else "Unknown item")
+    type_id = info.get("type_id")
+    return {
+        "index": index,
+        "role": _current_change_item_role(item, index),
+        "label": label,
+        "type_id": type_id,
+        "brand": info.get("brand"),
+        "diaper_name": info.get("name"),
+        "size": info.get("size"),
+        "variant": info.get("variant"),
+        "catalog_url": CATALOG_TYPE_URL.format(type_id=type_id) if type_id else None,
+        "image_url": info.get("image_url"),
+        "order": item.get("order"),
+        "change_item_id": item.get("id"),
+        "stock_id": item.get("stockId") or item.get("stock_id"),
+    }
+
+
+def _current_change_item_role(item: dict[str, Any], index: int) -> str:
+    """Best-effort role for an item on the current change."""
+    explicit = (
+        item.get("role")
+        or item.get("type")
+        or item.get("kind")
+        or item.get("category")
+        or item.get("usage")
+        or item.get("itemType")
+        or item.get("item_type")
+    )
+    if explicit is not None:
+        value = str(explicit).strip().lower()
+        if "boost" in value:
+            return "booster"
+        if "diaper" in value or "nappy" in value:
+            return "diaper"
+    if _api_bool(item.get("booster")) or _api_bool(item.get("isBooster")) or _api_bool(item.get("is_booster")):
+        return "booster"
+    return "diaper" if index == 0 else "booster"
 
 
 def _api_bool(value: Any) -> bool:

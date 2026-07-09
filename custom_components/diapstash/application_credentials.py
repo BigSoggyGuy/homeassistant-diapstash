@@ -25,7 +25,15 @@ from homeassistant.helpers.config_entry_oauth2_flow import (
     LocalOAuth2ImplementationWithPkce,
 )
 
-from .const import COMMON_HEADERS, DOMAIN, OAUTH2_AUTHORIZE, OAUTH2_SCOPES, OAUTH2_TOKEN
+from .const import (
+    COMMON_HEADERS,
+    DIAPSTASH_API_CLIENT_PREFILL_URL,
+    DOMAIN,
+    OAUTH2_AUTHORIZE,
+    OAUTH2_REDIRECT_URL,
+    OAUTH2_SCOPES,
+    OAUTH2_TOKEN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -181,6 +189,7 @@ async def async_get_description_placeholders(hass: HomeAssistant) -> dict[str, s
     return {
         "oauth_creds_url": "https://account.diapstash.com",
         "more_info_url": "https://docs.diapstash.com/api",
-        "redirect_url": "https://my.home-assistant.io/redirect/oauth",
+        "api_client_url": DIAPSTASH_API_CLIENT_PREFILL_URL,
+        "redirect_url": OAUTH2_REDIRECT_URL,
         "scopes": OAUTH2_SCOPES,
     }

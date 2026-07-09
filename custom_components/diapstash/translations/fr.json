@@ -12,7 +12,7 @@
       },
       "user": {
         "title": "Saisir les identifiants API DiapStash",
-        "description": "Créez un client API dans le compte DiapStash que vous souhaitez ajouter et saisissez ses identifiants ici. Chaque compte DiapStash devrait utiliser ses propres identifiants API.",
+        "description": "Créez un client API dans le compte DiapStash que vous souhaitez ajouter et saisissez ses identifiants ici. Chaque compte DiapStash devrait utiliser ses propres identifiants API.\n\nUtilisez le formulaire prérempli de création du client API : {api_client_url}\n\nURL de redirection : `{redirect_url}`\n\nScopes requis : `{scopes}`",
         "data": {
           "name": "Nom",
           "client_id": "ID client OAuth",
@@ -39,7 +39,7 @@
     }
   },
   "application_credentials": {
-    "description": "Créez un client API dans le compte DiapStash et saisissez ici le Client ID et le Client Secret.\n\nURL de redirection : `{redirect_url}`\n\nScopes recommandés : `{scopes}`\n\nPlus d’infos : {more_info_url}"
+    "description": "Créez un client API dans le compte DiapStash et saisissez ici le Client ID et le Client Secret.\n\nFormulaire prérempli : {api_client_url}\n\nURL de redirection : `{redirect_url}`\n\nScopes recommandés : `{scopes}`\n\nPlus d’infos : {more_info_url}"
   },
   "entity": {
     "sensor": {
