@@ -33,7 +33,7 @@ BRAND_PATH = "/brand/brands/{brand_code}"
 CATALOG_TYPE_URL = "https://diapstash.com/catalog/types/{type_id}"
 
 UPDATE_INTERVAL_MINUTES = 15
-INTEGRATION_VERSION = "1.1.4"
+INTEGRATION_VERSION = "1.1.5"
 
 ATTR_BRAND = "brand"
 ATTR_CHANGE_ID = "change_id"

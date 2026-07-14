@@ -2,7 +2,7 @@
 
 Custom Home Assistant integration for DiapStash Cloud Sync.
 
-Current stable version: **1.1.4**
+Current stable version: **1.1.5**
 
 ## Features
 
@@ -13,6 +13,7 @@ Current stable version: **1.1.4**
 - Token refresh handling and Home Assistant reauthentication support
 - Current diaper sensor
 - Additional current change item attributes, including boosters
+- Current change tags and notes as sensor attributes
 - Wearing binary sensor
 - Wearing duration sensor
 - Local live wearing-duration updates without additional DiapStash API calls
@@ -264,3 +265,8 @@ During reauthentication, log in with the same DiapStash account. The integration
 DiapStash refresh tokens rotate. Do not use the same refresh token in multiple tools at the same time. Once this integration is configured, Home Assistant should be the only client using the token.
 
 The integration is read-only. Stock additions are handled through DiapStash deep links, not API write access.
+
+
+## Development notes
+
+This development build adds diagnostic attributes for current change tags and notes.

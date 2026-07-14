@@ -85,6 +85,10 @@ class DiapStashCurrentDiaper:
     boosters: list[dict[str, Any]] = field(default_factory=list)
     boosters_count: int | None = None
     boosters_label: str | None = None
+    change_tags: list[str] = field(default_factory=list)
+    change_tags_label: str | None = None
+    change_note: str | None = None
+    change_has_note: bool = False
     debug_count: int | None = None
     debug_total_count: int | None = None
     debug_url: str | None = None
@@ -419,6 +423,9 @@ class DiapStashApiClient:
             label_parts.append(str(first_item["diaper_name"]))
         if first_item.get("size"):
             label_parts.append(f"Size {first_item['size']}")
+        change_tags = _extract_change_tags(current)
+        change_note = _extract_change_note(current)
+
         return DiapStashCurrentDiaper(
             wearing=current.get("endTime") is None,
             label=" ".join(label_parts) or "Unknown diaper",
@@ -435,6 +442,10 @@ class DiapStashApiClient:
             boosters=additional_items,
             boosters_count=len(additional_items),
             boosters_label=", ".join(str(item.get("label")) for item in additional_items if item.get("label")) or None,
+            change_tags=change_tags,
+            change_tags_label=", ".join(change_tags) or None,
+            change_note=change_note,
+            change_has_note=change_note is not None,
             debug_count=debug_count,
             debug_total_count=total_count,
             debug_url=debug_url,
@@ -606,6 +617,91 @@ class DiapStashApiClient:
             "image_url": str(image_url) if image_url else None,
         }
 
+
+
+def _extract_change_tags(change: dict[str, Any]) -> list[str]:
+    """Extract human-readable tags from a history change."""
+    tags: list[str] = []
+    for key in (
+        "tags",
+        "tag",
+        "tagNames",
+        "tag_names",
+        "tagName",
+        "tag_name",
+        "changeTags",
+        "change_tags",
+        "labels",
+        "label",
+    ):
+        if key in change:
+            tags.extend(_normalize_tag_values(change.get(key)))
+    return _unique_preserve_order(tags)
+
+
+def _normalize_tag_values(value: Any) -> list[str]:
+    """Normalize tag values that may be strings, dicts or lists."""
+    if value is None:
+        return []
+    if isinstance(value, str):
+        value = value.strip()
+        return [value] if value else []
+    if isinstance(value, dict):
+        for key in ("name", "label", "title", "text", "value"):
+            nested = value.get(key)
+            if isinstance(nested, str) and nested.strip():
+                return [nested.strip()]
+        return []
+    if isinstance(value, list):
+        tags: list[str] = []
+        for item in value:
+            tags.extend(_normalize_tag_values(item))
+        return tags
+    return []
+
+
+def _extract_change_note(change: dict[str, Any]) -> str | None:
+    """Extract a user note/comment from a history change."""
+    for key in (
+        "note",
+        "notes",
+        "comment",
+        "comments",
+        "description",
+        "memo",
+        "text",
+    ):
+        value = change.get(key)
+        note = _normalize_note_value(value)
+        if note:
+            return note
+    return None
+
+
+def _normalize_note_value(value: Any) -> str | None:
+    """Normalize a note value that may be a string or nested object."""
+    if isinstance(value, str):
+        value = value.strip()
+        return value or None
+    if isinstance(value, dict):
+        for key in ("text", "value", "note", "comment", "description"):
+            note = _normalize_note_value(value.get(key))
+            if note:
+                return note
+    return None
+
+
+def _unique_preserve_order(values: list[str]) -> list[str]:
+    """Deduplicate strings while preserving their first occurrence."""
+    seen: set[str] = set()
+    out: list[str] = []
+    for value in values:
+        key = value.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(value)
+    return out
 
 
 def _current_change_item_to_dict(item: dict[str, Any], info: dict[str, Any], index: int) -> dict[str, Any]:

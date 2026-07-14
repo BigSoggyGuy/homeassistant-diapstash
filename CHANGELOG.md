@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.1.5
+
+### Added
+
+- Add current change tags to the current diaper sensor.
+- Add current change notes to the current diaper sensor.
+- New current diaper attributes:
+  - `change_tags`
+  - `change_tags_label`
+  - `change_note`
+  - `change_has_note`
+
+### Notes
+
+- Tags and notes are read from the DiapStash history change fields `tags` and `note`.
+- `change_tags` is exposed as a list so dashboards can render tags as chips or badges.
+
 ## v1.1.4
 
 ### Fixed
