@@ -2,5 +2,17 @@ __pycache__/
 *.pyc
 .DS_Store
 .env
-.vscode/
 .idea/
+
+# Local developer state and credentials
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+*.log
+.env.*
+!.env.example
+.vscode/*.local.json
+*.code-workspace.local

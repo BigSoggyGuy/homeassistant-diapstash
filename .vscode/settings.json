@@ -1,0 +1,24 @@
+{
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true
+  },
+  "editor.rulers": [
+    100
+  ],
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}"
+  ],
+  "python.terminal.activateEnvironment": true,
+  "python.testing.unittestEnabled": true,
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestArgs": [
+    "-v",
+    "-s",
+    "tests",
+    "-p",
+    "test_*.py"
+  ],
+  "files.trimTrailingWhitespace": true
+}
