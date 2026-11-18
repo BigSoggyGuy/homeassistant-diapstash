@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.1.6
+
+### Changed
+
+- Replace full change-history pagination during regular updates with the official latest-change and aggregate history endpoints.
+- Reuse embedded diaper type details before requesting separate catalog metadata.
+- Stop API-base fallback requests after HTTP 429 responses and honor the server-provided rate-limit reset delay locally.
+
 ## v1.1.5
 
 ### Added

@@ -1,4 +1,4 @@
-# Architecture — DiapStash v1.1.5
+# Architecture — DiapStash v1.1.6
 
 ## Data flow
 
@@ -7,7 +7,8 @@ Home Assistant config flow
   └─ DiapStash API credentials / OAuth2 PKCE / reauth
        └─ __init__.py → OAuth2Session → DiapStashApiClient
             └─ DiapStashCoordinator (periodic cloud poll)
-                 ├─ /history/changes → current diaper, boosters, tags, note, stats
+                 ├─ /history/latest-change → current diaper, boosters, tags, note
+                 ├─ /history/stats and /history/stats/streak → aggregate counters
                  ├─ /stock/* → stock, by type/brand/location, reusables to wash
                  └─ /type/types/* and /brand/brands/* → metadata and images
                       ├─ sensor.py
@@ -38,6 +39,8 @@ The `current_diaper` sensor exposes attributes by mapping these fields in `senso
 
 - OAuth2 PKCE and manually supplied API client credentials are managed in `config_flow.py` and `application_credentials.py`.
 - Read API requests retry on HTTP 401 after refresh and must surface persistent auth issues to HA reauthentication.
+- HTTP 429 responses stop API-base fallback and activate a local request block for the server-provided reset delay.
+- Regular coordinator updates do not paginate through the complete change history. They use the official latest-change and aggregate statistics endpoints.
 - OIDC `sub` is decoded locally (`token.py`) for *identification only*; do not use this unverified decoding for authorization or JWT cryptographic validation.
 - Preserve stable config entry and device identifiers, especially migration of older installs.
 
@@ -55,6 +58,6 @@ The `current_diaper` sensor exposes attributes by mapping these fields in `senso
 
 ## Compatibility
 
-- Baseline `manifest.json`: `version: 1.1.5`.
+- Baseline `manifest.json`: `version: 1.1.6`.
 - Baseline `hacs.json`: `homeassistant: 2026.6.0`.
 - No external requirements listed in the integration manifest; Home Assistant provides its runtime dependencies.

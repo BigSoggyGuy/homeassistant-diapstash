@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import logging
+import re
+import time
 from typing import Any
 
 from aiohttp import ClientError, ClientResponseError
@@ -20,6 +22,9 @@ from .const import (
     CATALOG_TYPE_URL,
     COMMON_HEADERS,
     DISPOSABLES_PATH,
+    HISTORY_STATS_PATH,
+    HISTORY_STREAK_PATH,
+    LATEST_CHANGE_PATH,
     MAX_PAGE_SIZE,
     REUSABLES_PATH,
     STOCKS_PATH,
@@ -31,6 +36,18 @@ _LOGGER = logging.getLogger(__name__)
 
 class DiapStashApiError(Exception):
     """Raised when the DiapStash API fails."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        status: int | None = None,
+        retry_after: int | None = None,
+    ) -> None:
+        """Initialize an API error with optional HTTP metadata."""
+        super().__init__(message)
+        self.status = status
+        self.retry_after = retry_after
 
 
 @dataclass(slots=True)
@@ -160,6 +177,7 @@ class DiapStashApiClient:
         self._catalog_cache: dict[str, CatalogType] = {}
         self._type_cache: dict[str, dict[str, Any] | None] = {}
         self._brand_cache: dict[str, dict[str, Any] | None] = {}
+        self._rate_limited_until = 0.0
 
     @property
     def client_id(self) -> str:
@@ -197,6 +215,15 @@ class DiapStashApiClient:
 
     async def _get_json_url(self, url: str) -> Any:
         """GET JSON from a full URL."""
+        remaining = self._rate_limited_until - time.monotonic()
+        if remaining > 0:
+            retry_after = max(1, int(remaining))
+            raise DiapStashApiError(
+                f"DiapStash API rate limit active; retry in {retry_after} seconds",
+                status=429,
+                retry_after=retry_after,
+            )
+
         session = async_get_clientsession(self.hass)
         headers = await self._headers()
         try:
@@ -212,11 +239,16 @@ class DiapStashApiClient:
                             )
                         if retry_resp.status >= 400:
                             text = await retry_resp.text()
-                            raise DiapStashApiError(f"GET {url} failed: HTTP {retry_resp.status}: {text[:300]}")
+                            raise self._response_error(
+                                url,
+                                retry_resp.status,
+                                text,
+                                retry_resp.headers,
+                            )
                         return await retry_resp.json()
                 if resp.status >= 400:
                     text = await resp.text()
-                    raise DiapStashApiError(f"GET {url} failed: HTTP {resp.status}: {text[:300]}")
+                    raise self._response_error(url, resp.status, text, resp.headers)
                 return await resp.json()
         except ConfigEntryAuthFailed:
             raise
@@ -225,7 +257,33 @@ class DiapStashApiClient:
         except ClientError as err:
             raise DiapStashApiError(f"GET {url} failed: {err}") from err
 
-    async def _api_get(self, path: str, query: dict[str, Any] | None = None) -> tuple[Any, str]:
+    def _response_error(
+        self,
+        url: str,
+        status: int,
+        text: str,
+        headers: Any,
+    ) -> DiapStashApiError:
+        """Build an API error and remember a server-provided rate-limit delay."""
+        retry_after = _rate_limit_retry_after(headers) if status == 429 else None
+        if retry_after:
+            self._rate_limited_until = max(
+                self._rate_limited_until,
+                time.monotonic() + retry_after,
+            )
+        return DiapStashApiError(
+            f"GET {url} failed: HTTP {status}: {text[:300]}",
+            status=status,
+            retry_after=retry_after,
+        )
+
+    async def _api_get(
+        self,
+        path: str,
+        query: dict[str, Any] | None = None,
+        *,
+        fallback_on_not_found: bool = True,
+    ) -> tuple[Any, str]:
         """GET JSON from the first working API base."""
         errors: list[str] = []
         for base in API_BASES:
@@ -234,6 +292,11 @@ class DiapStashApiClient:
                 return await self._get_json_url(url), url
             except DiapStashApiError as err:
                 message = str(err)
+                if err.status == 429:
+                    raise
+                if err.status is not None and 400 <= err.status < 500:
+                    if err.status != 404 or not fallback_on_not_found:
+                        raise
                 if "HTTP 401" in message or "HTTP 403" in message:
                     raise
                 errors.append(message)
@@ -266,6 +329,35 @@ class DiapStashApiClient:
             {"sort": "startTime,desc"},
         )
         return changes, total_count or len(changes), last_url
+
+    async def async_get_latest_change(self) -> tuple[dict[str, Any] | None, str | None]:
+        """Fetch the latest change with embedded diaper details."""
+        try:
+            response, url = await self._api_get(
+                LATEST_CHANGE_PATH,
+                fallback_on_not_found=False,
+            )
+        except DiapStashApiError as err:
+            if err.status == 404:
+                return None, None
+            raise
+        if not isinstance(response, dict):
+            raise DiapStashApiError("Latest change response is not an object")
+        return response, url
+
+    async def async_get_history_stats(self) -> dict[str, Any]:
+        """Fetch server-side aggregate history statistics."""
+        response, _ = await self._api_get(HISTORY_STATS_PATH)
+        if not isinstance(response, dict):
+            raise DiapStashApiError("History stats response is not an object")
+        return response
+
+    async def async_get_history_streak(self) -> dict[str, Any]:
+        """Fetch the most recent history streak."""
+        response, _ = await self._api_get(HISTORY_STREAK_PATH)
+        if not isinstance(response, dict):
+            raise DiapStashApiError("History streak response is not an object")
+        return response
 
     async def _get_all_paginated(self, path: str, query: dict[str, Any] | None = None) -> tuple[list[dict[str, Any]], int | None, str | None]:
         """Fetch all pages from a paginated DiapStash endpoint."""
@@ -378,21 +470,30 @@ class DiapStashApiClient:
         low_stock_threshold: int | float | None = None,
     ) -> DiapStashCurrentDiaper:
         """Fetch the current worn diaper and stock summary."""
-        changes, total_count, debug_url = await self.async_get_all_history()
-        current = _find_current_change(changes)
+        latest_change, debug_url = await self.async_get_latest_change()
+        history_stats = await self.async_get_history_stats()
+        current = (
+            latest_change
+            if latest_change is not None
+            and latest_change.get("endTime") is None
+            and latest_change.get("diapers")
+            else None
+        )
+        total_count = _int_value(history_stats.get("changeCount"))
         if current is None:
             data = DiapStashCurrentDiaper(
                 wearing=False,
                 label="No diaper",
-                debug_count=len(changes),
+                debug_count=1 if latest_change is not None else 0,
                 debug_total_count=total_count,
                 debug_url=debug_url,
                 total_changes=total_count,
             )
         else:
-            data = await self._build_current_diaper(current, len(changes), total_count, debug_url)
+            data = await self._build_current_diaper(current, 1, total_count, debug_url)
         if enable_stats:
-            self._attach_change_stats(data, changes, total_count)
+            history_streak = await self.async_get_history_streak()
+            self._attach_change_stats(data, history_stats, history_streak)
         if enable_stock:
             await self._attach_stock(data, low_stock_threshold=low_stock_threshold)
         else:
@@ -455,20 +556,37 @@ class DiapStashApiClient:
     def _attach_change_stats(
         self,
         data: DiapStashCurrentDiaper,
-        changes: list[dict[str, Any]],
-        total_count: int | None,
+        stats: dict[str, Any],
+        streak: dict[str, Any],
     ) -> None:
-        """Attach change counters and current streak from loaded history."""
-        now = datetime.now(timezone.utc)
-        start_month = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
-        start_year = datetime(now.year, 1, 1, tzinfo=timezone.utc)
-        data.month_count = sum(1 for change in changes if (_parse_time(change.get("startTime")) or now) >= start_month)
-        data.year_count = sum(1 for change in changes if (_parse_time(change.get("startTime")) or now) >= start_year)
-        data.total_changes = total_count or len(changes)
-        streak_count, streak_minutes = _build_streak(changes, now)
-        data.streak_count = streak_count
-        data.streak_minutes = streak_minutes
-        data.streak_text = _humanize_minutes(streak_minutes)
+        """Attach server-side counters and the most recent streak."""
+        periods = stats.get("changesByPeriod")
+        if not isinstance(periods, dict):
+            periods = {}
+        data.month_count = _int_value(periods.get("monthToDate"))
+        data.year_count = _int_value(periods.get("yearToDate"))
+        data.total_changes = _int_value(stats.get("changeCount"))
+        data.streak_count = _int_value(streak.get("changeCount"))
+        data.streak_minutes = _int_value(streak.get("totalTimeInDiaperMinutes"))
+        if data.wearing and data.start_time:
+            current_start = _parse_time(data.start_time)
+            previous_end = _parse_time(streak.get("endAt"))
+            joins_previous = (
+                current_start is not None
+                and previous_end is not None
+                and 0 <= (current_start - previous_end).total_seconds() <= 15 * 60
+            )
+            if joins_previous:
+                data.streak_count = (data.streak_count or 0) + 1
+                data.streak_minutes = (data.streak_minutes or 0) + data.duration_minutes
+            else:
+                data.streak_count = 1
+                data.streak_minutes = data.duration_minutes
+        data.streak_text = (
+            _humanize_minutes(data.streak_minutes)
+            if data.streak_minutes is not None
+            else None
+        )
 
     async def _attach_stock(
         self,
@@ -583,31 +701,41 @@ class DiapStashApiClient:
     async def _resolve_diaper_info(self, item: dict[str, Any]) -> dict[str, Any]:
         """Resolve diaper fields from history or stock item."""
         type_obj = item.get("type") or item.get("diaperType") or item.get("diaper_type") or {}
+        if not isinstance(type_obj, dict):
+            type_obj = {}
         brand_obj = type_obj.get("brand") or item.get("brand") or {}
-        variant_obj = item.get("variant") or {}
+        if not isinstance(brand_obj, dict):
+            brand_obj = {}
+        variant_obj = item.get("variant") or type_obj.get("variant") or {}
+        if not isinstance(variant_obj, dict):
+            variant_obj = {}
         type_id = (
             item.get("type_id")
             or item.get("typeId")
             or item.get("diaperTypeId")
             or item.get("diaper_type_id")
         )
-        catalog = await self.async_resolve_catalog_type(type_id)
         name = (
             item.get("diaperName")
             or item.get("name")
             or item.get("typeName")
             or type_obj.get("name")
-            or catalog.name
-            or (f"type_id {type_id}" if type_id else None)
         )
-        brand = item.get("diaperBrand") or brand_obj.get("name") or catalog.brand
+        brand = item.get("diaperBrand") or brand_obj.get("name")
         size = item.get("size") or item.get("diaperSize")
         variant = item.get("variantName") or variant_obj.get("name")
         image_url = (
             item.get("imageUrl")
+            or item.get("image_url")
+            or _image_url_from_type(variant_obj)
             or _image_url_from_type(type_obj)
-            or catalog.image_url
         )
+        catalog = CatalogType(None, None)
+        if type_id is not None and (not name or not brand):
+            catalog = await self.async_resolve_catalog_type(type_id)
+        name = name or catalog.name or (f"type_id {type_id}" if type_id else None)
+        brand = brand or catalog.brand
+        image_url = image_url or catalog.image_url
         return {
             "type_id": type_id,
             "name": str(name) if name else None,
@@ -885,6 +1013,39 @@ def _build_url(url: str, query: dict[str, Any] | None = None) -> str:
     from yarl import URL
 
     return str(URL(url).with_query({key: str(value) for key, value in query.items()}))
+
+
+def _rate_limit_retry_after(headers: Any) -> int | None:
+    """Extract the server's rate-limit reset delay from response headers."""
+    if not hasattr(headers, "get"):
+        return None
+    retry_after = headers.get("Retry-After")
+    if retry_after is not None:
+        try:
+            return max(1, int(str(retry_after).strip()))
+        except ValueError:
+            pass
+    rate_limit = headers.get("RateLimit")
+    if rate_limit is None:
+        return None
+    match = re.search(r"(?:^|[,;\s])w\s*=\s*\"?(\d+)", str(rate_limit), re.IGNORECASE)
+    return max(1, int(match.group(1))) if match else None
+
+
+def _int_value(value: Any) -> int | None:
+    """Return an API integer without treating booleans as counters."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError:
+            return None
+    return None
 
 
 def _parse_time(value: str | None) -> datetime | None:

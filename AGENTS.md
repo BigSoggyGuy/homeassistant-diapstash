@@ -2,7 +2,7 @@
 
 ## Project and source of truth
 
-- This is the **DiapStash Home Assistant custom integration**, Python, with HACS metadata. The current development baseline is **v1.1.5**. Read `docs/CODEX_HANDOFF.md`, `docs/ARCHITECTURE.md` and the existing `README.md` before making substantial changes.
+- This is the **DiapStash Home Assistant custom integration**, Python, with HACS metadata. The current development baseline is **v1.1.6**. Read `docs/CODEX_HANDOFF.md`, `docs/ARCHITECTURE.md` and the existing `README.md` before making substantial changes.
 - `custom_components/diapstash/` is the Home Assistant integration. The separate dashboard-card project is **not** part of this repository.
 - Do not invent API fields, scopes or endpoints. Check existing code and official documentation, and request real sanitized sample JSON if uncertain.
 - Respect the repository license and preserve existing user-facing behavior unless explicitly tasked otherwise.
@@ -12,7 +12,7 @@
 - **Never commit, push, tag or merge directly to `main` on your own.** Work only on a user-approved `dev` or `dev/*` branch. Inspect `git status` and the current branch first.
 - Work only in a valid Git checkout. If `.git` metadata is missing, stop and ask the user; do not initialize a repository or attach an existing remote without explicit user direction.
 - Never create a GitHub release, Git tag, or publish through HACS without explicit user approval.
-- Do not increase `manifest.json` / `const.py` / README versions until instructed; dev changes can remain based on `1.1.5`.
+- Do not increase `manifest.json` / `const.py` / README versions until instructed; dev changes can remain based on `1.1.6`.
 - Inspect changes (`git diff`) and run local checks before proposing a commit. Explain any untested areas.
 
 ## Non-negotiable behavior to protect

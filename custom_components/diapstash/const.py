@@ -26,6 +26,9 @@ MAX_PAGE_SIZE = 50
 STOCKS_PATH = "/stock/stocks"
 DISPOSABLES_PATH = "/stock/disposables"
 REUSABLES_PATH = "/stock/reusables"
+LATEST_CHANGE_PATH = "/history/latest-change"
+HISTORY_STATS_PATH = "/history/stats"
+HISTORY_STREAK_PATH = "/history/stats/streak"
 
 TYPE_PATH = "/type/types/{type_id}"
 BRAND_PATH = "/brand/brands/{brand_code}"
@@ -33,7 +36,7 @@ BRAND_PATH = "/brand/brands/{brand_code}"
 CATALOG_TYPE_URL = "https://diapstash.com/catalog/types/{type_id}"
 
 UPDATE_INTERVAL_MINUTES = 15
-INTEGRATION_VERSION = "1.1.5"
+INTEGRATION_VERSION = "1.1.6"
 
 ATTR_BRAND = "brand"
 ATTR_CHANGE_ID = "change_id"

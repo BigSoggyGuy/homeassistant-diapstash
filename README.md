@@ -2,7 +2,7 @@
 
 Custom Home Assistant integration for DiapStash Cloud Sync.
 
-Current stable version: **1.1.5**
+Current development version: **1.1.6**
 
 ## Features
 
@@ -244,11 +244,15 @@ stock_location_names:
 
 ## Polling and local duration updates
 
-The integration polls DiapStash every 15 minutes by default. One coordinator update may use several API calls because it fetches current history, stock locations, disposable stock and reusable stock.
+The integration polls DiapStash every 15 minutes by default. Current diaper data uses the official latest-change endpoint instead of downloading the complete paginated history. Change counters and streak data use the official aggregate history endpoints when enabled.
+
+Stock polling still uses separate calls for stock locations, disposable stock and reusable stock. Embedded diaper type details are reused before the integration requests separate catalog metadata.
 
 The wearing duration can be refreshed locally without extra API calls. The live duration update interval can be configured in the integration options.
 
 Temporary DiapStash API or network update failures keep the last known values available after the first successful data update. This avoids noisy short `unavailable` state changes in Home Assistant history.
+
+When the API responds with HTTP 429, the integration does not retry through the fallback API base and locally observes the reset delay supplied by the server.
 
 OAuth token refresh updates do not reload the whole integration, so entities should remain available during token refreshes.
 

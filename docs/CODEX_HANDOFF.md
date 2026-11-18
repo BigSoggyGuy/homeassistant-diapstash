@@ -1,6 +1,6 @@
 # Codex-Übergabe — DiapStash Home Assistant Integration
 
-**Übergabestand:** Entwicklungsbasis `v1.1.5`. Die lokale Arbeitskopie verwendet den Branch `dev` auf Basis von `origin/main`-Commit `3bc4b07` (`Release v1.1.5`). Beim Einrichten am 13. November 2026 existierte remote noch kein `dev`-Branch. Die tatsächliche GitHub-Release-/Tag-Lage muss separat geprüft werden; eine Versionsnummer oder Commit-Nachricht beweist keine öffentliche Veröffentlichung.
+**Übergabestand:** Entwicklungsbasis `v1.1.6` auf dem Branch `dev`; `v1.1.5` war der vorherige stabile Ausgangspunkt. Die tatsächliche GitHub-Release-/Tag-Lage muss separat geprüft werden; eine Versionsnummer oder Commit-Nachricht beweist keine öffentliche Veröffentlichung.
 
 ## Ziel des Projekts
 
@@ -68,7 +68,7 @@ GitHub: `https://github.com/BigSoggyGuy/homeassistant-diapstash`. Domain: `diaps
 ## Freigabe- und Arbeitsregeln
 
 - Nach Wunsch des Besitzers neue Features/Fixes **ausschließlich im `dev` oder `dev/*`-Branch**, nicht direkt auf `main`.
-- Version 1.1.5 ist die aktuelle Entwicklungsbasis. Release-/Tag-Status separat gegen GitHub überprüfen.
+- Version 1.1.6 ist die aktuelle Entwicklungsbasis. Release-/Tag-Status separat gegen GitHub überprüfen.
 - Keine heimlichen Versionssprünge, Releases, Merges oder Pushes.
 - Zuerst vorhandenen Zustand testen, dann Änderungen mit kleinem Diff und Regressionstests.
 - Keine echten Secrets / Tokens in Dateien oder Logs speichern oder ausgeben.
