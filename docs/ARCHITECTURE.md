@@ -38,7 +38,10 @@ The `current_diaper` sensor exposes attributes by mapping these fields in `senso
 ## Auth and error handling
 
 - OAuth2 PKCE and manually supplied API client credentials are managed in `config_flow.py` and `application_credentials.py`.
+- Manual setup requires an `API Server` client with a non-empty Client Secret. `offline_access` and consent request a refresh token suitable for unattended polling.
+- Refresh responses are merged with the stored token: an omitted `refresh_token` retains the current value and a returned replacement rotates it. Safe runtime diagnostics record only rotation state, timing, status and OAuth error identifiers.
 - Read API requests retry on HTTP 401 after refresh and must surface persistent auth issues to HA reauthentication.
+- HTTP 429, server failures and OAuth temporary-unavailability errors remain transient; only credential, grant, scope or authorization failures start reauthentication.
 - HTTP 429 responses stop API-base fallback and activate a local request block for the server-provided reset delay.
 - Regular coordinator updates do not paginate through the complete change history. They use the official latest-change and aggregate statistics endpoints.
 - OIDC `sub` is decoded locally (`token.py`) for *identification only*; do not use this unverified decoding for authorization or JWT cryptographic validation.

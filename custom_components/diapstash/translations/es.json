@@ -12,7 +12,7 @@
       },
       "user": {
         "title": "Introducir credenciales API de DiapStash",
-        "description": "Crea un cliente API en la cuenta de DiapStash que quieras añadir e introduce aquí sus credenciales. Cada cuenta de DiapStash debería usar sus propias credenciales API.\n\nUsa el formulario precompletado para crear el cliente API: {api_client_url}\n\nURL de redirección: `{redirect_url}`\n\nScopes requeridos: `{scopes}`",
+        "description": "Crea un cliente de tipo API Server en la cuenta de DiapStash que quieras añadir e introduce aquí sus credenciales. El tipo de aplicación debe ser `API Server`; los clientes JavaScript Web App tienen una duración total fija de siete días para el token de actualización. Cada cuenta de DiapStash debería usar sus propias credenciales API.\n\nUsa el formulario precompletado para crear el cliente API: {api_client_url}\n\nURL de redirección: `{redirect_url}`\n\nScopes requeridos: `{scopes}`",
         "data": {
           "name": "Nombre",
           "client_id": "ID de cliente OAuth",
@@ -23,6 +23,9 @@
         "title": "Volver a autenticar DiapStash",
         "description": "El token de autenticación de DiapStash expiró o fue revocado. Continúa para iniciar sesión de nuevo y reconectar esta cuenta."
       }
+    },
+    "error": {
+      "api_server_credentials_required": "Usa un cliente DiapStash de tipo API Server e introduce tanto su ID de cliente como un secreto de cliente no vacío."
     },
     "abort": {
       "credentials_already_configured": "Estas credenciales API de DiapStash ya se usan en otra entrada. Crea un cliente API separado para cada cuenta de DiapStash.",
@@ -39,7 +42,7 @@
     }
   },
   "application_credentials": {
-    "description": "Crea un cliente API en la cuenta de DiapStash e introduce aquí el Client ID y el Client Secret.\n\nFormulario precompletado: {api_client_url}\n\nURL de redirección: `{redirect_url}`\n\nScopes recomendados: `{scopes}`\n\nMás información: {more_info_url}"
+    "description": "Crea un cliente de tipo API Server en la cuenta de DiapStash e introduce aquí su ID de cliente y su secreto de cliente. Los clientes JavaScript Web App tienen una duración total fija de siete días para el token de actualización y no son compatibles.\n\nFormulario precompletado: {api_client_url}\n\nURL de redirección: `{redirect_url}`\n\nScopes recomendados: `{scopes}`\n\nMás información: {more_info_url}"
   },
   "entity": {
     "sensor": {

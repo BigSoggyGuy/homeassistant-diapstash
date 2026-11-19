@@ -41,6 +41,9 @@ def _install_import_stubs() -> None:
     class ConfigEntryAuthFailed(Exception):
         """Authentication failure stub."""
 
+    class OAuth2TokenRequestReauthError(Exception):
+        """Permanent OAuth refresh failure stub."""
+
     class OAuth2Session:
         """OAuth session stub."""
 
@@ -52,6 +55,7 @@ def _install_import_stubs() -> None:
 
     core.HomeAssistant = HomeAssistant
     exceptions.ConfigEntryAuthFailed = ConfigEntryAuthFailed
+    exceptions.OAuth2TokenRequestReauthError = OAuth2TokenRequestReauthError
     aiohttp_client.async_get_clientsession = lambda _hass: None
     oauth2_flow.OAuth2Session = OAuth2Session
     const.Platform = Platform
@@ -110,6 +114,28 @@ class TestApiRequestFlow(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(API.DiapStashApiError):
             await client._api_get("/history/latest-change")
         self.assertEqual(len(urls), 1)
+
+    async def test_temporary_forced_refresh_failure_does_not_start_reauth(self) -> None:
+        client = object.__new__(API.DiapStashApiClient)
+
+        class Session:
+            async def async_refresh_token(self) -> None:
+                raise RuntimeError("temporary failure")
+
+        client.oauth_session = Session()
+        with self.assertRaises(API.DiapStashApiError):
+            await client._force_refresh_token()
+
+    async def test_permanent_forced_refresh_failure_starts_reauth(self) -> None:
+        client = object.__new__(API.DiapStashApiClient)
+
+        class Session:
+            async def async_refresh_token(self) -> None:
+                raise API.OAuth2TokenRequestReauthError("invalid grant")
+
+        client.oauth_session = Session()
+        with self.assertRaises(API.ConfigEntryAuthFailed):
+            await client._force_refresh_token()
 
     async def test_embedded_type_details_skip_catalog_request(self) -> None:
         client = object.__new__(API.DiapStashApiClient)

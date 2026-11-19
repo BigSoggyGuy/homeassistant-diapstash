@@ -258,7 +258,9 @@ OAuth token refresh updates do not reload the whole integration, so entities sho
 
 ## Reauthentication
 
-DiapStash refresh tokens rotate and may eventually expire or be rejected by the token endpoint.
+Use a DiapStash client with the application type **API Server** and a non-empty Client Secret. JavaScript Web App clients have a fixed seven-day refresh-token lifetime and are not supported by this integration.
+
+DiapStash API Server refresh tokens have a seven-day lifetime and are conditionally rotated after roughly 70 percent of that lifetime. Home Assistant retains the current refresh token when a refresh response omits one and stores a replacement when DiapStash rotates it. A continuously running integration should therefore remain authenticated as long as refreshes continue successfully. Reauthentication is still required if Home Assistant is offline past the refresh-token lifetime, the API client secret is regenerated, access is revoked, or the token is used and rotated by another client.
 
 If token refresh fails with a permanent authentication error, Home Assistant will start a reauthentication flow for the existing config entry.
 
@@ -266,7 +268,9 @@ During reauthentication, log in with the same DiapStash account. The integration
 
 ## Notes
 
-DiapStash refresh tokens rotate. Do not use the same refresh token in multiple tools at the same time. Once this integration is configured, Home Assistant should be the only client using the token.
+DiapStash refresh tokens rotate. Do not use the same OAuth authorization in multiple tools or Home Assistant installations at the same time. Once this integration is configured, its Home Assistant config entry should be the only client using that token chain.
+
+Diagnostics expose only safe authentication metadata such as whether credentials and a refresh token are present, the token type, expiry timestamps, and the latest refresh result. Access tokens, refresh tokens and client secrets remain redacted.
 
 The integration is read-only. Stock additions are handled through DiapStash deep links, not API write access.
 

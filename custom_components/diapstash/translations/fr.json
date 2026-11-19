@@ -12,7 +12,7 @@
       },
       "user": {
         "title": "Saisir les identifiants API DiapStash",
-        "description": "Créez un client API dans le compte DiapStash que vous souhaitez ajouter et saisissez ses identifiants ici. Chaque compte DiapStash devrait utiliser ses propres identifiants API.\n\nUtilisez le formulaire prérempli de création du client API : {api_client_url}\n\nURL de redirection : `{redirect_url}`\n\nScopes requis : `{scopes}`",
+        "description": "Créez un client de type API Server dans le compte DiapStash que vous souhaitez ajouter et saisissez ses identifiants ici. Le type d’application doit être `API Server` ; les clients JavaScript Web App ont une durée totale de jeton d’actualisation limitée à sept jours. Chaque compte DiapStash devrait utiliser ses propres identifiants API.\n\nUtilisez le formulaire prérempli de création du client API : {api_client_url}\n\nURL de redirection : `{redirect_url}`\n\nScopes requis : `{scopes}`",
         "data": {
           "name": "Nom",
           "client_id": "ID client OAuth",
@@ -23,6 +23,9 @@
         "title": "Réauthentifier DiapStash",
         "description": "Le jeton d’authentification DiapStash a expiré ou a été révoqué. Continuez pour vous reconnecter et reconnecter ce compte."
       }
+    },
+    "error": {
+      "api_server_credentials_required": "Utilisez un client DiapStash de type API Server et saisissez son ID client ainsi qu’un secret client non vide."
     },
     "abort": {
       "credentials_already_configured": "Ces identifiants API DiapStash sont déjà utilisés par une autre entrée. Créez un client API séparé pour chaque compte DiapStash.",
@@ -39,7 +42,7 @@
     }
   },
   "application_credentials": {
-    "description": "Créez un client API dans le compte DiapStash et saisissez ici le Client ID et le Client Secret.\n\nFormulaire prérempli : {api_client_url}\n\nURL de redirection : `{redirect_url}`\n\nScopes recommandés : `{scopes}`\n\nPlus d’infos : {more_info_url}"
+    "description": "Créez un client de type API Server dans le compte DiapStash et saisissez ici son ID client et son secret client. Les clients JavaScript Web App ont une durée totale de jeton d’actualisation fixe de sept jours et ne sont pas pris en charge.\n\nFormulaire prérempli : {api_client_url}\n\nURL de redirection : `{redirect_url}`\n\nScopes recommandés : `{scopes}`\n\nPlus d’infos : {more_info_url}"
   },
   "entity": {
     "sensor": {

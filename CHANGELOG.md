@@ -7,6 +7,10 @@
 - Replace full change-history pagination during regular updates with the official latest-change and aggregate history endpoints.
 - Reuse embedded diaper type details before requesting separate catalog metadata.
 - Stop API-base fallback requests after HTTP 429 responses and honor the server-provided rate-limit reset delay locally.
+- Require non-empty API Server credentials during manual setup and document why JavaScript Web App clients are unsuitable for unattended Home Assistant use.
+- Preserve an existing refresh token when DiapStash omits one from a refresh response and store a returned replacement token.
+- Distinguish transient token-endpoint failures from permanent authentication failures before starting reauthentication.
+- Add redacted OAuth refresh metadata to diagnostics without exposing tokens or client secrets.
 
 ## v1.1.5
 

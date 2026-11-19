@@ -50,6 +50,27 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def _credentials_schema(defaults: Mapping[str, Any] | None = None) -> vol.Schema:
+    """Return the manual API Server credential schema."""
+    values = defaults or {}
+    return vol.Schema(
+        {
+            vol.Required("name", default=values.get("name", "DiapStash")): str,
+            vol.Required("client_id", default=values.get("client_id", "")): str,
+            vol.Required("client_secret", default=values.get("client_secret", "")): str,
+        }
+    )
+
+
+def _credential_placeholders() -> dict[str, str]:
+    """Return placeholders shared by the credential forms."""
+    return {
+        "api_client_url": DIAPSTASH_API_CLIENT_PREFILL_URL,
+        "redirect_url": OAUTH2_REDIRECT_URL,
+        "scopes": OAUTH2_SCOPES,
+    }
+
+
 class DiapStashConfigFlow(
     config_entry_oauth2_flow.AbstractOAuth2FlowHandler,
     domain=DOMAIN,
@@ -83,23 +104,26 @@ class DiapStashConfigFlow(
         if user_input is None:
             return self.async_show_form(
                 step_id="user",
-                data_schema=vol.Schema(
-                    {
-                        vol.Required("name", default="DiapStash"): str,
-                        vol.Required("client_id"): str,
-                        vol.Required("client_secret"): str,
-                    }
-                ),
-                description_placeholders={
-                    "api_client_url": DIAPSTASH_API_CLIENT_PREFILL_URL,
-                    "redirect_url": OAUTH2_REDIRECT_URL,
-                    "scopes": OAUTH2_SCOPES,
-                },
+                data_schema=_credentials_schema(),
+                description_placeholders=_credential_placeholders(),
             )
 
         name = str(user_input["name"]).strip() or "DiapStash"
         client_id = str(user_input["client_id"]).strip()
         client_secret = str(user_input["client_secret"]).strip()
+        errors: dict[str, str] = {}
+        if not client_id:
+            errors["client_id"] = "api_server_credentials_required"
+        if not client_secret:
+            errors["client_secret"] = "api_server_credentials_required"
+        if errors:
+            return self.async_show_form(
+                step_id="user",
+                data_schema=_credentials_schema(user_input),
+                errors=errors,
+                description_placeholders=_credential_placeholders(),
+            )
+
         auth_domain = f"{DOMAIN}_{slugify(name)}_{sha1(client_id.encode('utf-8')).hexdigest()[:8]}"
 
         self._manual_credentials = {

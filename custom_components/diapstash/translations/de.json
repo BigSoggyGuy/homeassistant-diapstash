@@ -3,7 +3,8 @@
   "config": {
     "step": {
       "pick_implementation": {
-        "title": "Authentifizierung auswählen"
+        "title": "Authentifizierung auswählen",
+        "description": "Wähle die DiapStash-API-Zugangsdaten für diesen Account aus. Erstelle für jeden DiapStash-Account eigene API-Zugangsdaten."
       },
       "auth": {
         "title": "DiapStash verbinden",
@@ -11,7 +12,7 @@
       },
       "user": {
         "title": "DiapStash API-Zugangsdaten eingeben",
-        "description": "Erstelle im DiapStash-Account, den du hinzufügen möchtest, einen API-Client und trage dessen Zugangsdaten hier ein. Jeder DiapStash-Account sollte eigene API-Zugangsdaten verwenden.\n\nNutze das vorausgefüllte Formular zum Erstellen des API-Clients: {api_client_url}\n\nRedirect URL: `{redirect_url}`\n\nBenötigte Scopes: `{scopes}`",
+        "description": "Erstelle im DiapStash-Account, den du hinzufügen möchtest, einen API-Server-Client und trage dessen Zugangsdaten hier ein. Der Anwendungstyp muss `API Server` sein; bei JavaScript-Web-App-Clients ist die Gesamtlaufzeit des Refresh-Tokens auf sieben Tage begrenzt. Jeder DiapStash-Account sollte eigene API-Zugangsdaten verwenden.\n\nNutze das vorausgefüllte Formular zum Erstellen des API-Clients: {api_client_url}\n\nRedirect URL: `{redirect_url}`\n\nBenötigte Scopes: `{scopes}`",
         "data": {
           "name": "Name",
           "client_id": "OAuth-Client-ID",
@@ -22,6 +23,9 @@
         "title": "DiapStash erneut authentifizieren",
         "description": "Der DiapStash-Authentifizierungstoken ist abgelaufen oder wurde widerrufen. Fahre fort, um dich erneut anzumelden und diesen Account wieder zu verbinden."
       }
+    },
+    "error": {
+      "api_server_credentials_required": "Verwende einen DiapStash-API-Server-Client und trage sowohl seine Client-ID als auch ein nicht leeres Client-Secret ein."
     },
     "abort": {
       "credentials_already_configured": "Diese DiapStash API-Zugangsdaten werden bereits von einem anderen Eintrag verwendet. Erstelle für jeden DiapStash-Account einen eigenen API-Client.",
@@ -38,7 +42,7 @@
     }
   },
   "application_credentials": {
-    "description": "Erstelle im DiapStash Account einen API-Client und trage hier Client ID und Client Secret ein.\n\nVorausgefülltes Formular: {api_client_url}\n\nRedirect URL: `{redirect_url}`\n\nEmpfohlene Scopes: `{scopes}`\n\nMehr Infos: {more_info_url}"
+    "description": "Erstelle im DiapStash Account einen API-Server-Client und trage hier seine Client-ID und sein Client-Secret ein. JavaScript-Web-App-Clients haben eine feste Refresh-Token-Gesamtlaufzeit von sieben Tagen und werden nicht unterstützt.\n\nVorausgefülltes Formular: {api_client_url}\n\nRedirect URL: `{redirect_url}`\n\nEmpfohlene Scopes: `{scopes}`\n\nMehr Infos: {more_info_url}"
   },
   "entity": {
     "sensor": {

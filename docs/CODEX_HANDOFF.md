@@ -13,6 +13,7 @@ GitHub: `https://github.com/BigSoggyGuy/homeassistant-diapstash`. Domain: `diaps
 - `custom_components/diapstash/__init__.py`: Setup/Unload, OAuth2 Session, Migration alter Account-/Gerätezuordnung, Coordinator, Options-Listener. Kritischer Fix: keine Reloads bei Token-only Updates.
 - `config_flow.py`: Credentials-Eingabe (Name, Client ID, Client Secret), OAuth2 PKCE, Reauth, Multi-Account-Deduplikation, Options Flow.
 - `application_credentials.py`: DiapStash OAuth2 Implementation inkl. Tokenhandling.
+- `oauth.py`: Kleine, Home-Assistant-unabhängige Helfer für Refresh-Token-Merge und sichere OAuth-Fehlerklassifizierung.
 - `token.py`: JWT-Payload-`sub` auslesen, ohne Signaturvalidierung (nur für Kontozuordnung, **nicht** als Sicherheitsprüfung).
 - `api.py`: API HTTP GET, Token-401-Retry, Pagination, Type-/Brand-Metadaten, History, Booster/Tags/Notiz-Auswertung, Lagerbestände und Statistik. Dataclass `DiapStashCurrentDiaper`.
 - `coordinator.py`: Polling über `DataUpdateCoordinator`, optional Stats/Stock.
@@ -42,6 +43,8 @@ GitHub: `https://github.com/BigSoggyGuy/homeassistant-diapstash`. Domain: `diaps
 - Die Ursache war nach Test sehr wahrscheinlich **Token-refresh → ConfigEntry update listener → unnötiger Komplett-Reload**. In `__init__.py` werden Optionen mit `coordinator.last_options` verglichen, Reload nur bei tatsächlichen Optionsänderungen; der Nutzer bestätigte danach keine neuen „Nicht verfügbar“-Einträge.
 - `entity.py` hält zuvor erfolgreich geladene Coordinator-Daten bei vorübergehenden API-Problemen verfügbar. Auth-/Reauth-Fehler nicht verstecken.
 - Die Version `v1.0.2` brachte `async_step_reauth` / `async_step_reauth_confirm`; Reauth aktualisiert dasselbe Konto und darf keine zusätzliche Instanz anlegen.
+- Manuelle Neueinrichtungen verlangen einen DiapStash-Client vom Typ `API Server` mit nicht leerem Client Secret. Rotierte Refresh-Tokens werden ersetzt, bei ausgelassenem `refresh_token` bleibt der bisherige erhalten.
+- OAuth-Diagnosen enthalten nur sichere Metadaten (Vorhandensein, Typ, Ablaufzeit, Rotationsstatus und Fehlerkennung), niemals Tokenwerte oder Client Secrets.
 
 ### Multi-Account und Stock
 

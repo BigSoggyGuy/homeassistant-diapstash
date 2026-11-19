@@ -11,7 +11,7 @@ from typing import Any
 
 from aiohttp import ClientError, ClientResponseError
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, OAuth2TokenRequestReauthError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.config_entry_oauth2_flow import OAuth2Session
 
@@ -210,8 +210,10 @@ class DiapStashApiClient:
                 return
             self.oauth_session.token["expires_at"] = 0
             await self.oauth_session.async_ensure_token_valid()
-        except Exception as err:  # Home Assistant will start re-auth for this exception.
+        except OAuth2TokenRequestReauthError as err:
             raise ConfigEntryAuthFailed("DiapStash authentication failed") from err
+        except Exception as err:
+            raise DiapStashApiError("DiapStash token refresh failed temporarily") from err
 
     async def _get_json_url(self, url: str) -> Any:
         """GET JSON from a full URL."""
